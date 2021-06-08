@@ -6,7 +6,7 @@ This package contains two modules, `importer` and `merger`:
 ## Installation:
 
 ```shell
-pip install 'git+https://github.com/MarkUsProject/autotest-helpers.git#subdirectory=notebook_importer'
+pip install 'git+https://github.com/MarkUsProject/autotest-helpers.git#subdirectory=notebook_helper'
 ```
 
 ## importer
