@@ -16,4 +16,4 @@ pip install 'git+https://github.com/MarkUsProject/autotest-helpers.git'
 
 ### [C Helper](c_helper)
 
-### [Notebook Importer](notebook_importer)
+### [Notebook Helper](notebook_helper)

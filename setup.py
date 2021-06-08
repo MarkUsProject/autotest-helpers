@@ -5,7 +5,7 @@ import os
 import glob
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-requires = [f"{p} @ file://{os.path.join(dir_path, p)}" for p in ('c_helper', 'sql_helper', 'notebook_importer')]
+requires = [f"{p} @ file://{os.path.join(dir_path, p)}" for p in ('c_helper', 'sql_helper', 'notebook_helper')]
 
 with open(os.path.join(dir_path, 'README.md')) as f:
     long_description = f.read()
