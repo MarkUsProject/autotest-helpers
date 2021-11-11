@@ -187,7 +187,10 @@ class NotebookFinder(MetaPathFinder):
         return self.loaders[key]
 
     def find_spec(self, fullname, path, target=None):
-        return ModuleSpec(fullname, self.find_module(fullname, path))
+        mod = self.find_module(fullname, path)
+        if mod is None:
+            return mod
+        return ModuleSpec(fullname, mod)
 
     def invalidate_caches(self):
         self.loaders.clear()
