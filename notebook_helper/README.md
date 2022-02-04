@@ -66,3 +66,5 @@ The `check` function checks if two notebooks can be merged with the `merge` func
 
 - the two notebooks do share any cells with the same ids
 - the two notebooks share cells but those cells occur in different orders.
+
+:warning: If you are creating or editing notebooks with a jupyter-notebook prior to version 6.2, the cell ids will be randomly regenerated every time the notebook is saved and will almost certainly mean that your notebook will not be mergeable later on. See [this change](https://github.com/jupyter/notebook/pull/5928) for more details.
