@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import traceback
 import types
 from contextlib import contextmanager
 from IPython import get_ipython
@@ -16,9 +17,9 @@ def get_cells(module):
     return module.__cells__
 
 
-def run_cells(module):
+def run_cells(module, raise_on_error: bool = True):
     for cell in module.__cells__:
-        cell.run()
+        cell.run(raise_on_error=raise_on_error)
 
 
 def import_from_path(path):
@@ -83,7 +84,7 @@ class Cell:
     def __getattr__(self, item):
         return self._cell.__getattr__(item)
 
-    def run(self):
+    def run(self, raise_on_error: bool = True):
         """no-op"""
 
 
@@ -99,10 +100,25 @@ class CodeCell(Cell):
             return self._source
         return super().__getattr__(item)
 
-    def run(self):
+    def run(self, raise_on_error: bool = True):
+        """Run this code cell.
+
+        If an error is encountered when running the cell:
+
+            - if raise_on_error is True, the error is raised
+            - if raise_on_error is False, the error's traceback is printed to stderr
+              but is not raised from this method
+        """
         with _user_ns(self._shell, self._mod):
-            code = compile(self._source, self._mod.__file__, 'exec')
-            exec(code, self._mod.__dict__)
+            filename = f'{self._mod.__file__} (Cell id: {self._cell.id})'
+            try:
+                code = compile(self._source, filename, 'exec')
+                exec(code, self._mod.__dict__)
+            except Exception as e:
+                if raise_on_error:
+                    raise
+                else:
+                    traceback.print_exception(e)
 
 
 class NotebookModule(types.ModuleType):

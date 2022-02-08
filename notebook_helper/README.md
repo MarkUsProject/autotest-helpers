@@ -11,7 +11,7 @@ pip install 'git+https://github.com/MarkUsProject/autotest-helpers.git#subdirect
 
 ## importer
 
-This allows jupyter notebooks to be imported as python modules. 
+This allows jupyter notebooks to be imported as python modules.
 
 Import the `importer` module first and then import files with an `.ipynb` extension. For example:
 
@@ -45,9 +45,18 @@ for cell in cells:
 importer.run_cells(my_notebook)
 ```
 
+### Handling errors
+
+The `run_cells` and `run` functions take a boolean flag `raise_on_error`, which controls their behaviour if an error is raised when executing a cell.
+
+- If `raise_on_error` is `True` (default), the error is raised from `run_cells` and `run`.
+- If `raise_on_error` is `False`, the error traceback is printed to stderr, but is not re-raised.
+
+Passing `raise_on_error=False` allows partial execution of a notebook's cells (an error is one cell does not necessarily affect the behaviour of another), which can be useful for testing purposes.
+
 ## merger
 
-This provides functions to merge two jupyter notebooks. 
+This provides functions to merge two jupyter notebooks.
 
 The `merge` function returns a notebook created from merging two notebooks: notebook2 into notebook1.
 
@@ -61,7 +70,7 @@ This new notebook will be created by selecting cells from notebook1 and notebook
 3. repeat steps 1 and 2 until all cells in notebook1 have been considered.
 4. if there remain any cells in notebook2 that have not been added to the new notebook, these cells
    appended to the new notebook
-   
+
 The `check` function checks if two notebooks can be merged with the `merge` function (above). It raises an error if either:
 
 - the two notebooks do share any cells with the same ids
