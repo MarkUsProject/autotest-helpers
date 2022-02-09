@@ -118,7 +118,11 @@ class CodeCell(Cell):
                 if raise_on_error:
                     raise
                 else:
-                    traceback.print_exception(e)
+                    # First argument is unused (included for backwards compatibility
+                    # with Python 3.9 and earlier)
+                    traceback.print_exception(None, value=e, tb=e.__traceback__)
+                    print('', file=sys.stderr)
+
 
 
 class NotebookModule(types.ModuleType):
