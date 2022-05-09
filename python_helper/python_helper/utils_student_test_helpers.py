@@ -15,6 +15,9 @@ TEST_CLASS_PREFIX = "Test"
 class _CaseWrapper:
     """A wrapper for test cases.
     """
+    name: str
+    _testcase: Callable
+    _test_module: str
 
     def __init__(self, name: str, testcase: Callable, test_module: str) -> None:
         """Initialize this _CaseWrapper with the given <name> and callable
