@@ -2,12 +2,13 @@
 Timeout decorator, modified for use on MarkUs.
 """
 import os
+from typing import Callable
 from timeout_decorator import timeout
 from timeout_decorator.timeout_decorator import _Timeout, TimeoutError
 from functools import wraps
 
 
-def bound_timeout(seconds, use_signals=False):
+def bound_timeout(seconds: int, use_signals: bool = False) -> Callable:
     """Return a decorator that will time out the test case after <seconds>
     seconds.
 
