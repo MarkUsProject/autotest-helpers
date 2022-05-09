@@ -20,6 +20,7 @@ setuptools.setup(
     author_email="sophia@cs.toronto.edu",
     packages=['python_helper'],
     install_requires=['timeout-decorator'],
+    extras_require={'dev': ['hypothesis']},
     python_requires='>=3.9',
     classifiers=[
         "Programming Language :: Python :: 3",
