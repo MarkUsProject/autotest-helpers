@@ -47,7 +47,7 @@ for test_name in test_cases:
 Return a string with the results of the test case run: this is an empty string if the test case passes, or the error message if it fails or an error is raised.
 
 - `function_to_mock` is the name of a function to be replaced when running the test case. If this is provided, `function_to_use` must also be provided and should be the function that we want to use in place of `function_to_mock`.
-- `module_to_replace` is the name of a module to be replaced when running the test case. If this is provided, `module_to_use` must also be provided and should be the *name* of the module that we want ot us ein place of `function_to_mock`.
+- `module_to_replace` is the name of a module to be replaced when running the test case. If this is provided, `module_to_use` must also be provided and should be the *name* of the module that we want to use in place of `function_to_mock`.
 
 `get_failures` can typically be used in lieu of calling `run` directly.
 
@@ -55,7 +55,7 @@ Return a string with the results of the test case run: this is an empty string i
 Return a set of the test case names in `testcases` that failed when run.
 
 - `function_to_mock` is the name of a function to be replaced when running the test case. If this is provided, `function_to_use` must also be provided and should be the function that we want to use in place of `function_to_mock`.
-- `module_to_replace` is the name of a module to be replaced when running the test case. If this is provided, `module_to_use` must also be provided and should be the *name* of the module that we want ot us ein place of `function_to_mock`.
+- `module_to_replace` is the name of a module to be replaced when running the test case. If this is provided, `module_to_use` must also be provided and should be the *name* of the module that we want to use in place of `function_to_mock`.
 
 #### Usage
 See [test_utils_student_test_helpers.py](./python_helper/test/test_utils_student_test_helpers.py) for more examples.
