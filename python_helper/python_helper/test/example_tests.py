@@ -2,10 +2,12 @@
 A sample set of test cases.
 """
 
-from buggy_function import external_buggy
-from hypothesis import given, strategies as st
-import pytest
 import unittest
+
+import pytest
+from hypothesis import given, strategies as st
+
+from buggy_function import external_buggy
 
 
 def internal_buggy(x: int) -> int:
@@ -62,16 +64,24 @@ def test_fails_internal_buggy():
     assert internal_buggy(2) == 2
 
 
-# FIXME: The tests do NOT currently work with parametrized tests, as arguments
-#        need to be passed in.
-# @pytest.mark.parametrize('x', [0, 1, 2], ids=['0', '1', '2'])
-# def test_fails_external_parametrize(x: int):
-#     assert external_buggy(x) == x
-#
-#
-# @pytest.mark.parametrize('x', [0, 1, 2], ids=['0', '1', '2'])
-# def test_fails_internal_parametrize(x: int):
-#     assert internal_buggy(x) == x
+@pytest.mark.parametrize('x', [0])
+def test_passes_external_parametrize(x: int):
+    assert external_buggy(x) == x
+
+
+@pytest.mark.parametrize('x', [1, 2])
+def test_fails_external_parametrize(x: int):
+    assert external_buggy(x) == x
+
+
+@pytest.mark.parametrize('x', [0])
+def test_passes_internal_parametrize(x: int):
+    assert internal_buggy(x) == x
+
+
+@pytest.mark.parametrize('x', [1, 2])
+def test_fails_internal_parametrize(x: int):
+    assert internal_buggy(x) == x
 
 
 @given(st.integers(min_value=0, max_value=20))

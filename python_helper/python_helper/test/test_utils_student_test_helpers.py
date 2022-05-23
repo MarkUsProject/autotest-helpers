@@ -25,11 +25,11 @@ class TestGetTestCases:
             results = test_cases[testname].run()
             if PASS_IDENTIFIER in testname:
                 checked_tests += 1
-                assert results == ''
+                assert results == '', f'{testname} should have passed but failed.'
 
             if FAIL_IDENTIFIER in testname:
                 checked_tests += 1
-                assert results
+                assert results, f'{testname} should have failed but passed.'
 
         # One last check to make sure all tests were included
         assert checked_tests == len(test_cases)
@@ -50,10 +50,14 @@ class TestGetTestCases:
                                    'test_passes_internal_buggy',
                                    'test_fails_external_buggy',
                                    'test_fails_internal_buggy',
-                                   # 'test_fails_external_parametrize',
-                                   # 'test_fails_internal_parametrize',
                                    'test_fails_external_hypothesis',
-                                   'test_fails_internal_hypothesis'
+                                   'test_fails_internal_hypothesis',
+                                   'test_fails_external_parametrize[1]',
+                                   'test_fails_external_parametrize[2]',
+                                   'test_fails_internal_parametrize[1]',
+                                   'test_fails_internal_parametrize[2]',
+                                   'test_passes_external_parametrize[0]',
+                                   'test_passes_internal_parametrize[0]'
                                    }
 
     def test_unittest_only(self):
@@ -91,10 +95,14 @@ class TestGetTestCases:
                                    'test_passes_internal_buggy',
                                    'test_fails_external_buggy',
                                    'test_fails_internal_buggy',
-                                   # 'test_fails_external_parametrize',
-                                   # 'test_fails_internal_parametrize',
                                    'test_fails_external_hypothesis',
-                                   'test_fails_internal_hypothesis'
+                                   'test_fails_internal_hypothesis',
+                                   'test_fails_external_parametrize[1]',
+                                   'test_fails_external_parametrize[2]',
+                                   'test_fails_internal_parametrize[1]',
+                                   'test_fails_internal_parametrize[2]',
+                                   'test_passes_external_parametrize[0]',
+                                   'test_passes_internal_parametrize[0]'
                                    }
 
     def test_pytest_runs(self):
@@ -175,10 +183,12 @@ class TestGetFailures:
                           'TestUnittests.test_fails_internal_buggy',
                           'test_fails_external_buggy',
                           'test_fails_internal_buggy',
-                          # 'test_fails_external_parametrize',
-                          # 'test_fails_internal_parametrize',
                           'test_fails_external_hypothesis',
-                          'test_fails_internal_hypothesis'
+                          'test_fails_internal_hypothesis',
+                          'test_fails_external_parametrize[1]',
+                          'test_fails_external_parametrize[2]',
+                          'test_fails_internal_parametrize[1]',
+                          'test_fails_internal_parametrize[2]'
                           }
 
     def test_replace_with_correct_internal(self):
@@ -195,7 +205,8 @@ class TestGetFailures:
         assert actual == {'TestPytests.test_fails_external_buggy',
                           'TestUnittests.test_fails_external_buggy',
                           'test_fails_external_buggy',
-                          # 'test_fails_external_parametrize',
+                          'test_fails_external_parametrize[1]',
+                          'test_fails_external_parametrize[2]',
                           'test_fails_external_hypothesis',
                           }
 
@@ -213,7 +224,8 @@ class TestGetFailures:
         assert actual == {'TestPytests.test_fails_internal_buggy',
                           'TestUnittests.test_fails_internal_buggy',
                           'test_fails_internal_buggy',
-                          # 'test_fails_internal_parametrize',
+                          'test_fails_internal_parametrize[1]',
+                          'test_fails_internal_parametrize[2]',
                           'test_fails_internal_hypothesis'
                           }
 

@@ -1,25 +1,30 @@
 """
 Helper functions for running student test cases.
 """
-from typing import Callable, Union
+from typing import Callable, Union, Any
 from types import ModuleType
 from unittest.mock import patch
-import inspect
+from io import StringIO
+from contextlib import redirect_stdout, redirect_stderr
+from os.path import sep
 import unittest, sys, importlib
-from traceback import format_exc
+import pytest
 
 TEST_PREFIX = "test"
 TEST_CLASS_PREFIX = "Test"
+PYTEST_NAME_SEPARATOR = "::"
+PYTEST_ERROR_SEP = \
+    "=========================== short test summary info ==========================="
 
 
 class _CaseWrapper:
     """A wrapper for test cases.
     """
     name: str
-    _testcase: Callable
+    _testcase: Any
     _test_module: str
 
-    def __init__(self, name: str, testcase: Callable, test_module: str) -> None:
+    def __init__(self, name: str, testcase: Any, test_module: str) -> None:
         """Initialize this _CaseWrapper with the given <name> and callable
         <testcase>.
         """
@@ -32,22 +37,40 @@ class _CaseWrapper:
         If the test passed, an empty string is returned. Otherwise, the error
         or failure message is returned.
         """
-        # If allow_unittest is True, unittest test methods will be included.
-        # The returned functions are TestSuite objects, for which .run() should be
-        # used.
-        if isinstance(self._testcase, unittest.TestSuite):
+        if isinstance(self._testcase, unittest.TestCase):
             result_container = unittest.TestResult()
             self._testcase.run(result_container)
-            # Return the failure or errors if any
+
+            # Return the failure/errors messages (if any)
             if result_container.failures:
                 return result_container.failures[0][-1]
             if result_container.errors:
                 return result_container.errors[0][-1]
-        else:
-            try:
-                self._testcase()
-            except Exception:
-                return format_exc()
+        elif isinstance(self._testcase, str):
+            # If it's a str then it's a pytest name
+            test_output = StringIO()
+
+            with redirect_stdout(test_output), \
+                 redirect_stderr(test_output):
+                exit_code = pytest.main([self._testcase])
+
+            if exit_code > 0:
+                pytest_output = test_output.getvalue()
+                test_identifier = remove_module_from_name(self._testcase) \
+                    .replace(PYTEST_NAME_SEPARATOR, ".")
+
+                # Extract only the error message and return it
+                identifier_loc = pytest_output.find(test_identifier)
+                start_index = pytest_output.find('\n', identifier_loc) + 1
+                end_index = pytest_output.find(PYTEST_ERROR_SEP)
+
+                error_message = pytest_output[start_index:end_index]
+                if error_message:
+                    return error_message
+                else:
+                    # If the error message wasn't correctly obtained, just return
+                    # all of the pytest output instead.
+                    return pytest_output
 
         # The test case passed and we can return
         return ''
@@ -94,6 +117,16 @@ class _CaseWrapper:
         return result
 
 
+def remove_module_from_name(pytest_name: str) -> str:
+    """Return pytest_name without the path and module included.
+
+    >>> remove_module_from_name('python_helper/test/example_tests.py::test_passes_internal_buggy')
+    'test_passes_internal_buggy'
+    """
+    separator_index = pytest_name.find(PYTEST_NAME_SEPARATOR)
+    return pytest_name[separator_index + len(PYTEST_NAME_SEPARATOR):]
+
+
 def get_test_cases(test_module: Union[ModuleType, Callable],
                    allow_pytest: bool = False, allow_unittest: bool = False,
                    test_module_name: str = '') -> \
@@ -106,41 +139,47 @@ def get_test_cases(test_module: Union[ModuleType, Callable],
     If allow_unittest is True, unittest test methods will be included.
     """
     discovered_tests = {}
-
-    is_unittest = False
-    if inspect.isclass(test_module):
-        test_module = test_module()
-        is_unittest = isinstance(test_module, unittest.TestCase)
-        if is_unittest and not allow_unittest:
-            return {}
-    elif not test_module_name:
+    if not test_module_name:
         test_module_name = test_module.__name__
 
-    all_items = dir(test_module)
+    # Use unittest.TestLoader to add discovered UnitTests
+    discovered_unittests = {}
+    test_suites = unittest.TestLoader().loadTestsFromModule(test_module)
+    for suite in test_suites:
+        for test_case in suite:
+            test_name = test_case.id()
+            if test_name.startswith(test_module_name):
+                test_name = test_name[len(test_module_name) + 1:]
+            discovered_unittests[test_name] = _CaseWrapper(test_name,
+                                                           test_case,
+                                                           test_module_name)
+    if allow_unittest:
+        discovered_tests.update(discovered_unittests)
 
-    # Go through all of the items in the given module
-    for item_name in all_items:
-        item = getattr(test_module, item_name)
+    if allow_pytest:
+        pytest_output = StringIO()
+        module_path = test_module_name.replace(".", sep) + '.py'
 
-        if inspect.isclass(item) and item_name.startswith(TEST_CLASS_PREFIX):
-            # If it's a class: extract the relevant test cases.
-            class_name = item_name
-            test_methods = get_test_cases(item,
-                                          allow_pytest=allow_pytest,
-                                          allow_unittest=allow_unittest,
-                                          test_module_name=test_module_name)
+        with redirect_stdout(pytest_output), \
+             redirect_stderr(pytest_output):
+            pytest.main(['--collect-only', '-q',
+                         module_path
+                         ])
 
-            # Add the test cases to discovered_tests and prefix it with the
-            # class name.
-            for method in test_methods:
-                name = f"{class_name}.{method}"
-                discovered_tests[name] = test_methods[method]
+        test_cases = set(test_line
+                         for test_line in pytest_output.getvalue().split('\n')
+                         if PYTEST_NAME_SEPARATOR in test_line)
 
-        elif (inspect.isfunction(item) or inspect.ismethod(item)) and \
-                item_name.startswith(TEST_PREFIX):
-            if allow_pytest or (allow_unittest and is_unittest):
-                # If it's a method or function, add it to the discovered_tests
-                discovered_tests[item_name] = _CaseWrapper(item_name, item, test_module_name)
+        for test_name in test_cases:
+            short_name = remove_module_from_name(test_name)
+            pathed_name = module_path + PYTEST_NAME_SEPARATOR + short_name
+
+            # Skip over any unittests
+            unittest_name = short_name.replace(PYTEST_NAME_SEPARATOR, '.')
+            if unittest_name not in discovered_unittests:
+                discovered_tests[unittest_name] = _CaseWrapper(test_name,
+                                                               pathed_name,
+                                                               test_module_name)
 
     return discovered_tests
 
