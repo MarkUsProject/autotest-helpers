@@ -64,3 +64,11 @@ See [test_utils_student_test_helpers.py](./python_helper/test/test_utils_student
 test_cases = get_test_cases(example_tests, allow_pytest=True)
 failures = get_failures(test_cases)
 ```
+
+### get_doctest_dict(`function`)
+Return a tuple of two dictionaries, mapping the doctest examples of `<function>` to their expected return value.
+
+#### Usage
+```python
+doctest_examples = get_doctest_dict(function)
+```

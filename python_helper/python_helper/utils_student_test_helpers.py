@@ -7,8 +7,10 @@ from unittest.mock import patch
 from io import StringIO
 from contextlib import redirect_stdout, redirect_stderr
 from os.path import sep
+from doctest import DocTest, DocTestFinder
 import unittest, sys, importlib
 import pytest
+import re
 
 TEST_PREFIX = "test"
 TEST_CLASS_PREFIX = "Test"
@@ -206,3 +208,27 @@ def get_failures(testcases: dict[str, _CaseWrapper],
             failures.add(test_name)
 
     return failures
+
+
+def _read_tests_as_dict(test_list: list[DocTest]) -> dict[str, str]:
+    """
+    Return a dictionary mapping unique test examples to expected outputs
+    from the DocTest objects in <test_list>.
+
+    >>> read_tests_as_dict([DOC1])
+    {'func(1)': 'True', 'func(2)': '2'}
+    >>> read_tests_as_dict([DOC2])
+    {'func(3)': 'False', 'func(4)': '4'}
+    """
+    return {ex.source.strip(): ex.want.strip() for test in test_list for ex in
+            test.examples}
+
+
+def get_doctest_dict(function: Callable) -> dict[str, str]:
+    """
+    Return a tuple of two dictionaries, mapping the doctest examples of
+    <function> to their expected return value.
+    """
+    finder = DocTestFinder()
+    func_tests = _read_tests_as_dict(finder.find(function))
+    return func_tests

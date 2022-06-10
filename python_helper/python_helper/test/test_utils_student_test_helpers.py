@@ -1,4 +1,5 @@
-from python_helper.utils_student_test_helpers import _CaseWrapper, get_failures, get_test_cases
+from utils_student_test_helpers import _CaseWrapper, \
+    get_failures, get_test_cases, get_doctest_dict
 
 FAIL_IDENTIFIER = "_fails_"
 PASS_IDENTIFIER = "_passes_"
@@ -7,6 +8,13 @@ PASS_IDENTIFIER = "_passes_"
 def correct_function(x: int) -> int:
     """A buggy function within the same directory as the tests.
     Return x.
+
+    >>> correct_function(1)
+    1
+    >>> correct_function(2)
+    2
+    >>> correct_function(3) == 3
+    True
     """
     return x
 
@@ -243,3 +251,15 @@ class TestGetFailures:
                               module_to_replace='buggy_function',
                               module_to_use='correct_function')
         assert actual == set()
+
+
+class TestGetDoctestDict:
+    def test_get_doctest_dict(self):
+        """Test that get_doctest_dict returns the correct dictionary.
+        """
+        actual = get_doctest_dict(correct_function)
+        expected = {'correct_function(1)': '1',
+                    'correct_function(2)': '2',
+                    'correct_function(3) == 3': 'True'}
+
+        assert actual == expected
