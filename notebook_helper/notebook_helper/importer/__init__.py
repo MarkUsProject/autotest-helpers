@@ -110,7 +110,9 @@ class CodeCell(Cell):
               but is not raised from this method
         """
         with _user_ns(self._shell, self._mod):
-            filename = f'{self._mod.__file__} (Cell id: {self._cell.id})'
+            filename = f'{self._mod.__file__}'
+            if hasattr(self._cell, 'id'):
+                filename += f' (Cell id: {self._cell.id})'
             try:
                 code = compile(self._source, filename, 'exec')
                 exec(code, self._mod.__dict__)

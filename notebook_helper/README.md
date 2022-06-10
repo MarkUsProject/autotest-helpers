@@ -1,6 +1,6 @@
 # Notebook Helper
 
-This package contains two modules, `importer` and `merger`:
+This package contains three modules, `importer`, `merger`, and `pytest`.
 
 
 ## Installation:
@@ -77,3 +77,35 @@ The `check` function checks if two notebooks can be merged with the `merge` func
 - the two notebooks share cells but those cells occur in different orders.
 
 :warning: If you are creating or editing notebooks with a jupyter-notebook prior to version 6.2, the cell ids will be randomly regenerated every time the notebook is saved and will almost certainly mean that your notebook will not be mergeable later on. See [this change](https://github.com/jupyter/notebook/pull/5928) for more details.
+
+## pytest
+
+The `notebook_helper.pytest.notebook_collector_plugin` module is a [Pytest plugin](https://docs.pytest.org/en/7.1.x/how-to/writing_plugins.html) that enables the collection of test cases from a Jupyter notebook file.
+This enables Pytest to execute notebook cells as simple test cases.
+Currently, more advanced Pytest features (such as fixtures and parameterized tests) are not supported.
+
+Usage (on an example notebook file in this repository):
+
+```console
+$ pytest -p notebook_helper.pytest.notebook_collector_plugin test/pytest/fixtures/test.ipynb 
+```
+
+### Creating a test cell
+
+A notebook code cell is marked as a test cell when its first line is a comment and the word `test` (case-insensitive).
+For example:
+
+```python
+# test that one plus one equals two
+assert 1 + 1 == 2
+```
+
+### Cell execution and handling non-test cells
+
+During test collection using this plugin, no code is executed in the notebook.
+Code cells are only executed when the tests are run.
+
+The plugin partitions all code cells in the notebooks using the test cells, so that each Pytest test case is associated with one test cell and all of the code cells preceding it, up to the previous test cell (if any).
+
+When a test case is run, the associated cells (zero or more non-test cells and one test cell) are executed in the order they appear in the notebook.
+If any of these cells raises an error, the test fails and reports the error; however, any subsequent test cases are still executed.
