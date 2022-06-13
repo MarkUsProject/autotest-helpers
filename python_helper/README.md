@@ -66,7 +66,7 @@ failures = get_failures(test_cases)
 ```
 
 ### get_doctest_dict(`function`)
-Return a tuple of two dictionaries, mapping the doctest examples of `<function>` to their expected return value.
+Return a dictionary mapping the doctest examples of `<function>` to their expected return value.
 
 #### Usage
 ```python
