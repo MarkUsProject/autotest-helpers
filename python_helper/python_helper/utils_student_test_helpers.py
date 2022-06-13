@@ -226,8 +226,8 @@ def _read_tests_as_dict(test_list: list[DocTest]) -> dict[str, str]:
 
 def get_doctest_dict(function: Callable) -> dict[str, str]:
     """
-    Return a tuple of two dictionaries, mapping the doctest examples of
-    <function> to their expected return value.
+    Return a dictionray mapping the doctest examples of <function> to
+    their expected return value.
     """
     finder = DocTestFinder()
     func_tests = _read_tests_as_dict(finder.find(function))
