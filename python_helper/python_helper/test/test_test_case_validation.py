@@ -1,4 +1,4 @@
-from utils_student_test_helpers import _CaseWrapper, \
+from test_case_validation import _CaseWrapper, \
     get_failures, get_test_cases, get_doctest_dict
 
 FAIL_IDENTIFIER = "_fails_"
