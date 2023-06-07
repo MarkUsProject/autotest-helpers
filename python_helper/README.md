@@ -72,3 +72,59 @@ Return a dictionary mapping the doctest examples of `<function>` to their expect
 ```python
 doctest_examples = get_doctest_dict(function)
 ```
+
+### is_unimplemented(obj_or_path, function_name) -> bool
+Return True if the body of the function `function_name` in the given object
+or path is not implemented (empty). This ignores all comments.
+
+- `obj_or_path` is the name of the file to search, the module, or the function itself
+- `function_name` is the name of the function to check
+
+#### Usage
+See [test_code_properties](./python_helper/test/test_code_properties.py) for more examples.
+
+```python
+assert is_unimplemented('test/example_code.py', function_name='empty_pass')
+```
+
+
+### get_recursive(obj_or_path, indirect = True)
+Return a set of recursive functions and methods in `obj_or_path`.
+
+- `obj_or_path` is the name of the file to search, the module, or the function itself. If obj_or_path is a list of elements, all of them are parsed before checking for recursive functions.
+- `indirect` checks for direct recursion (e.g. the function must call on itself directly to be considered recursive.)
+
+#### Usage
+See [test_code_properties](./python_helper/test/test_code_properties.py) for more examples.
+
+```python
+assert 'recursive_direct' in get_recursive('test/example_code.py')
+```
+
+### get_functions_using(obj_or_path, ast_types, indirect=True)
+Return a set of functions/methods defined in obj_or_path that use any of the AST types in ast_types (e.g. `ast.For`, `ast.While`).
+
+- `obj_or_path` is the name of the file to search, the module, or the function itself. If obj_or_path is a list of elements, all of them are parsed before checking for recursive functions.
+- `ast_types` is a set of AST types (e.g. `ast.For`, `ast.While`) that functions are checked for
+- `indirect` checks for direct usage (e.g. the function must use the given syntax within its own body.)
+
+#### Usage
+See [test_code_properties](./python_helper/test/test_code_properties.py) for more examples.
+
+```python
+assert 'loop_for' in get_functions_using('test/example_code.py', {ast.For})
+```
+
+### get_functions_that_call(obj_or_path, function_names, indirect=True)
+Return a set of functions/methods defined in obj_or_path that call any of the functions or methods in function_names.
+
+- `obj_or_path` is the name of the file to search, the module, or the function itself. If obj_or_path is a list of elements, all of them are parsed before checking for recursive functions.
+- `function_names` is a set of function names to check usage of.
+- `indirect` checks for direct usage (e.g. the function must call the given function within its own body.)
+
+#### Usage
+See [test_code_properties](./python_helper/test/test_code_properties.py) for more examples.
+
+```python
+assert 'sorted_call' in get_functions_that_call('test/example_code.py', {'sorted'})
+```
