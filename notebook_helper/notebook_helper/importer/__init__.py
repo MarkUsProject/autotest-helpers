@@ -175,7 +175,7 @@ class NotebookLoader(Loader):
 
     def exec_module(self, module):
         path = find_notebook(module.__name__, self.path)
-        with open(path) as f:
+        with open(path, encoding='utf-8') as f:
             nb = read(f, as_version=4)
         module.__cells__ = []
         with _user_ns(self.shell, module):

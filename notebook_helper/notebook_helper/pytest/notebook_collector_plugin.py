@@ -67,6 +67,10 @@ class IpynbItem(pytest.Item):
     def runtest(self) -> None:
         for cell in self.setup_cells:
             self._last_cell = cell
+            # Skip cell if markus "skip": True metdata is set
+            if 'markus' in cell.metadata and cell.metadata.markus.get('skip', True):
+                continue
+
             cell.run()
         self._last_cell = self.test_cell
         self.test_cell.run()

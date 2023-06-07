@@ -87,7 +87,7 @@ Currently, more advanced Pytest features (such as fixtures and parameterized tes
 Usage (on an example notebook file in this repository):
 
 ```console
-$ pytest -p notebook_helper.pytest.notebook_collector_plugin test/pytest/fixtures/test.ipynb 
+$ pytest -p notebook_helper.pytest.notebook_collector_plugin test/pytest/fixtures/test.ipynb
 ```
 
 ### Creating a test cell
@@ -109,3 +109,17 @@ The plugin partitions all code cells in the notebooks using the test cells, so t
 
 When a test case is run, the associated cells (zero or more non-test cells and one test cell) are executed in the order they appear in the notebook.
 If any of these cells raises an error, the test fails and reports the error; however, any subsequent test cases are still executed.
+
+If you would like to *skip* the execution of a cell before a test cell, add the following to the cell's metadata:
+
+```json
+{
+    "metadata": {
+        "markus": {
+            "skip": true
+        }
+    }
+}
+```
+
+Test cells cannot be skipped.

@@ -20,7 +20,7 @@ setuptools.setup(
     author=authors,
     author_email="mschwa@cs.toronto.edu",
     packages=['sql_helper'],
-    install_requires=['psycopg2-binary==2.8.6'],
+    install_requires=['psycopg2-binary>=2.8.6,<3'],
     python_requires='>=3.3',
     classifiers=[
         "Programming Language :: Python :: 3",
