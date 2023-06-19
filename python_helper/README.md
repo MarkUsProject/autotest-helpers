@@ -8,7 +8,7 @@ Helper functions and classes for executing python unit tests.
 pip install git+https://github.com/MarkUsProject/autotest-helpers.git#subdirectory=python_helper
 ```
 
-## Functions
+## General helpers
 ### bound_timeout(`seconds`)
 Return a decorator that will time out the test case after `seconds` seconds. 
 
@@ -21,6 +21,32 @@ def my_function() -> None:
 	...
 ```
 
+### module_fixture(`modname`)
+Return a pytest fixture to import the module modname.
+
+If the module cannot be imported, a detailed error message is raised.
+
+#### Usage
+```python
+my_module = module_fixture('my_module')
+
+def test_student(my_module) -> None:
+    my_module.blah()
+```
+
+### module_lookup(`mod`, `attr`, `attr_type`)
+Return the attribute attr from module mod. If mod does not have attr, an AssertionError is raised.
+
+attr_type is used only to format the error message. Typically 'class' or 'function'.
+
+#### Usage
+```python
+@pytest.fixture(scope="module")
+def MyClass(my_module):
+    return module_lookup(my_module, 'MyClass', 'class')
+```
+
+## Test case validation helpers
 ### get_test_cases(`test_module, allow_pytest=False, allow_unittest=False, test_module_name=''`)
 Return a dictionary mapping the name of test cases in `test_module`
 to a `_CaseWrapper` which can be used to run the tests. `test_module_name` is only required in the case that a module imported into `test_module` needs to be replaced for testing.
@@ -73,6 +99,7 @@ Return a dictionary mapping the doctest examples of `<function>` to their expect
 doctest_examples = get_doctest_dict(function)
 ```
 
+## Code inspection helpers
 ### is_unimplemented(obj_or_path, function_name) -> bool
 Return True if the body of the function `function_name` in the given object
 or path is not implemented (empty). This ignores all comments.
