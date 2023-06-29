@@ -312,6 +312,20 @@ def _get_path(obj_or_path: str | ModuleType) -> str:
     return path
 
 
+def is_empty(mod_or_path: str | ModuleType, function_name: str) -> bool:
+    """
+    Return True if the body of the function <function_name> in filename is empty.
+
+    Ignores all comments.
+    """
+    ap = ASTParser()
+    path = _get_path(mod_or_path)
+    ap.parse(path)
+    empty_functions = ap.get_unimplemented()
+
+    return function_name in empty_functions
+
+
 def is_unimplemented(obj_or_path: str | ModuleType, function_name: str = "") -> bool:
     """
     Return True if the body of the function <function_name> in the given object
