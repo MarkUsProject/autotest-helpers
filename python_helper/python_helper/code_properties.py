@@ -297,6 +297,21 @@ class ASTParser(ast.NodeVisitor):
         return initial.union(indirect)
 
 
+def _get_path(obj_or_path: str | ModuleType) -> str:
+    """Return the path given an object, module, or path.
+    """
+    if isinstance(obj_or_path, str):
+        path = obj_or_path
+    elif inspect.ismodule(obj_or_path) or inspect.isclass(obj_or_path):
+        path = inspect.getfile(obj_or_path)
+    elif inspect.isfunction(obj_or_path):
+        path = inspect.getfile(obj_or_path)
+    else:
+        path = getattr(obj_or_path, '__file__', f'{obj_or_path.__name__}.py')
+
+    return path
+
+
 def is_unimplemented(obj_or_path: str | ModuleType, function_name: str = "") -> bool:
     """
     Return True if the body of the function <function_name> in the given object
@@ -305,7 +320,12 @@ def is_unimplemented(obj_or_path: str | ModuleType, function_name: str = "") -> 
     Ignores all comments.
     """
     ap = ASTParser()
-    ap.parse(obj_or_path)
+
+    if inspect.isfunction(obj_or_path):
+        function_name = function_name or obj_or_path.__name__
+    path = _get_path(obj_or_path)
+
+    ap.parse(path)
     empty_functions = ap.get_unimplemented()
 
     if not function_name:

@@ -102,6 +102,17 @@ class TestIsUnimplemented:
             assert is_unimplemented(current)
 
     @pytest.mark.parametrize('function_name', [
+        name for name in EXAMPLES if 'empty' in name and 'ExampleSubclass' not in name
+    ])
+    def test_true_for_empty_given_modules(self, function_name):
+        """Test that is_unimplemented returns True for all of the empty
+        functions when given an imported module
+
+        Does *not* work when given a subclass but not the source of its parent.
+        """
+        assert is_unimplemented(example_code, function_name=function_name)
+
+    @pytest.mark.parametrize('function_name', [
         name for name in EXAMPLES if 'empty' not in name
     ])
     def test_false_for_nonempty(self, function_name):
@@ -109,6 +120,15 @@ class TestIsUnimplemented:
         non-empty functions when given a file path and the function name.
         """
         assert is_unimplemented('example_code.py', function_name=function_name) is False
+
+    @pytest.mark.parametrize('function_name', [
+        name for name in EXAMPLES if 'empty' not in name
+    ])
+    def test_false_for_nonempty_given_modules(self, function_name):
+        """Test that is_unimplemented returns False for all of the
+        non-empty functions when given a module and the function name.
+        """
+        assert is_unimplemented(example_code, function_name=function_name) is False
 
 
 class TestGetFunctionsUsing:
