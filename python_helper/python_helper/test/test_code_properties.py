@@ -1,7 +1,7 @@
 import ast
 
 from code_properties import is_unimplemented, get_recursive, \
-    get_functions_using, get_functions_that_call
+    get_functions_using, get_functions_that_call, is_empty
 import example_code
 import pytest
 import inspect
@@ -129,6 +129,49 @@ class TestIsUnimplemented:
         non-empty functions when given a module and the function name.
         """
         assert is_unimplemented(example_code, function_name=function_name) is False
+
+
+class TestIsEmpty:
+    """Tests for is_empty
+    """
+
+    @pytest.mark.parametrize('function_name', [
+        name for name in EXAMPLES if 'empty' in name
+    ])
+    def test_true_for_empty_given_name(self, function_name):
+        """Test that is_empty returns True for all of the empty
+        functions when given a file path and the function name.
+        """
+        assert is_unimplemented('example_code.py', function_name)
+
+    @pytest.mark.parametrize('function_name', [
+        name for name in EXAMPLES if 'empty' in name and 'ExampleSubclass' not in name
+    ])
+    def test_true_for_empty_given_modules(self, function_name):
+        """Test that is_empty returns True for all of the empty
+        functions when given an imported module
+
+        Does *not* work when given a subclass but not the source of its parent.
+        """
+        assert is_empty(example_code, function_name)
+
+    @pytest.mark.parametrize('function_name', [
+        name for name in EXAMPLES if 'empty' not in name
+    ])
+    def test_false_for_nonempty(self, function_name):
+        """Test that is_empty returns False for all of the
+        non-empty functions when given a file path and the function name.
+        """
+        assert is_empty('example_code.py', function_name) is False
+
+    @pytest.mark.parametrize('function_name', [
+        name for name in EXAMPLES if 'empty' not in name
+    ])
+    def test_false_for_nonempty_given_modules(self, function_name):
+        """Test that is_empty returns False for all of the
+        non-empty functions when given a module and the function name.
+        """
+        assert is_empty(example_code, function_name) is False
 
 
 class TestGetFunctionsUsing:
