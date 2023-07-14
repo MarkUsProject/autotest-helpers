@@ -84,11 +84,44 @@ Return a set of the test case names in `testcases` that failed when run.
 - `module_to_replace` is the name of a module to be replaced when running the test case. If this is provided, `module_to_use` must also be provided and should be the *name* of the module that we want to use in place of `function_to_mock`.
 
 #### Usage
-See [test_utils_student_test_helpers.py](./python_helper/test/test_utils_student_test_helpers.py) for more examples.
+See [test_test_case_validation.py](./python_helper/test/test_test_case_validation.py) for more examples.
 
 ```python
 test_cases = get_test_cases(example_tests, allow_pytest=True)
 failures = get_failures(test_cases)
+```
+### make_test_results_fixture(`module`, `function_to_mock`, `functions_to_mock`, `module_to_replace`, `modules_to_use`, `allow_pytest`, `allow_unittest`, `exclusions`)
+Return a fixture that contains the results of the testcases in `module` when replacing the given functions/modules with various others.
+
+The fixture itself returns a ResultsGrid object, composed of ResultsRow objects. These contain information about 1) each test case, and 2) whether the test case passed or failed when run on each of the mocked functions/modules.
+
+#### Usage
+See [test_test_case_validation_fixture.py](./python_helper/test/test_test_case_validation_fixture.py) for more exapmles.
+
+```python
+results_fixture = make_test_results_fixture(example_tests,
+	                                        function_to_mock='fn',
+	                                        functions_to_use=[fn_v1, fn_v2, fn_v3],
+	                                        allow_pytest=True
+	                                        )
+
+def test_example(results_fixture):
+	# len() return the number of test cases discovered
+	assert len(results_fixture) > 0
+
+	# The filter method returns the names of the tests that
+	# fulfill the given criteria
+	filtered_tests = results_fixture.filter(must_pass={'fn_v1'}, must_fail={'fn_v2'})
+	assert len(filtered_tests) > 0
+
+def test_example2(results_fixture):
+	# __getitem__ can be used to get specific tests and mocked functions
+	assert results_fixture['test_the_student_wrote']['fn_v3'] is True
+
+	# Or you can iterate over the results
+	for test_row in results_fixture:
+		assert test_row['fn_v1'] is True
+		assert all(test_result for test_result in test_row)
 ```
 
 ### get_doctest_dict(`function`)
