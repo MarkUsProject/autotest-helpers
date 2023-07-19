@@ -53,7 +53,7 @@ class _CaseWrapper:
             test_output = StringIO()
 
             with redirect_stdout(test_output), \
-                 redirect_stderr(test_output):
+                    redirect_stderr(test_output):
                 exit_code = pytest.main([self._testcase])
 
             if exit_code > 0:
@@ -78,7 +78,7 @@ class _CaseWrapper:
         return ''
 
     def run(self, function_to_mock: str = '', function_to_use: Callable = None,
-            module_to_replace: str = '', module_to_use: str = '') -> str:
+            module_to_replace: str | list = '', module_to_use: str | list = '') -> str:
         """Run this _CaseWrapper's test case and return a string.
 
         If function_to_mock is provided, calls to that function are replaced
@@ -89,17 +89,26 @@ class _CaseWrapper:
         If the test passed, an empty string is returned. Otherwise, the error
         or failure message is returned.
 
-        Precondition: function_to_use is None iff function_to_mock is ''
-                      module_to_use and test_module are None iff module_to_replace is ''
+        Preconditions:
+        - function_to_use is None iff function_to_mock is ''
+          module_to_use and test_module are None iff module_to_replace is ''
+        - if isinstance(module_to_replace, str) then
+          len(module_to_replace) == len(module_to_use)
         """
         if module_to_replace:
-            # Replace the module as needed
-            del sys.modules[module_to_replace]
-            sys.modules[module_to_replace] = __import__(module_to_use)
-            # Re-import the file containing the module, so it uses the
-            # replacement
-            module_imported = importlib.import_module(self._test_module)
-            importlib.reload(module_imported)
+            if isinstance(module_to_replace, str):
+                module_to_replace = [module_to_replace]
+
+            for i in range(len(module_to_replace)):
+                replaced = module_to_replace[i]
+                replacement = module_to_use[i]
+                # Replace the module as needed
+                del sys.modules[replaced]
+                sys.modules[replaced] = __import__(replacement)
+                # Re-import the file containing the module, so it uses the
+                # replacement
+                module_imported = importlib.import_module(self._test_module)
+                importlib.reload(module_imported)
 
         # Run the test as needed
         if not function_to_mock:
@@ -109,12 +118,15 @@ class _CaseWrapper:
                 result = self._run()
 
         if module_to_replace:
-            # Restore the original settings
-            del sys.modules[module_to_replace]
-            sys.modules[module_to_replace] = __import__(module_to_replace)
+            for i in range(len(module_to_replace)):
+                replaced = module_to_replace[i]
 
-            module_imported = importlib.import_module(self._test_module)
-            importlib.reload(module_imported)
+                # Restore the original settings
+                del sys.modules[replaced]
+                sys.modules[replaced] = __import__(replaced)
+
+                module_imported = importlib.import_module(self._test_module)
+                importlib.reload(module_imported)
 
         return result
 
@@ -163,7 +175,7 @@ def get_test_cases(test_module: Union[ModuleType, Callable],
         module_path = test_module_name.replace(".", sep) + '.py'
 
         with redirect_stdout(pytest_output), \
-             redirect_stderr(pytest_output):
+                redirect_stderr(pytest_output):
             pytest.main(['--collect-only', '-q',
                          module_path
                          ])
@@ -188,7 +200,8 @@ def get_test_cases(test_module: Union[ModuleType, Callable],
 
 def get_failures(testcases: dict[str, _CaseWrapper],
                  function_to_mock: str = '', function_to_use: Callable = None,
-                 module_to_replace: str = '', module_to_use: str = '') -> set:
+                 module_to_replace: str | list = '',
+                 module_to_use: str | list = '') -> set:
     """
     Return a set of all tests that fail in testcases. If function_to_mock is
     provided, function_to_use is used in its place.

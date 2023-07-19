@@ -12,14 +12,14 @@ with open(os.path.join(dir_path, 'AUTHORS.txt')) as f:
 
 setuptools.setup(
     name='python_helper',
-    version='0.0.1',
+    version='0.0.2',
     description='Helper functions and classes for executing python unit tests',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author=authors,
     author_email="sophia@cs.toronto.edu",
     packages=['python_helper'],
-    install_requires=['timeout-decorator'],
+    install_requires=['timeout-decorator', 'coverage', 'pytest'],
     extras_require={'dev': ['hypothesis']},
     python_requires='>=3.9',
     classifiers=[
