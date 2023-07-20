@@ -44,13 +44,14 @@ class CoverageResults:
         self.percent_covered = json_summary['summary']['percent_covered']
 
 
-def get_coverage_dict(test_module: ModuleType,
-                      modules_to_check: list[str],
-                      modules_to_replace: dict[str, str] = None,
-                      allow_pytest: bool = True,
-                      allow_unittest: bool = True,
-                      ) -> dict[str, CoverageResults]:
-    """Return a dictionary mapping a module to a CoverageResult object.
+def get_test_coverage_dict(test_module: ModuleType,
+                           modules_to_check: list[str],
+                           modules_to_replace: dict[str, str] = None,
+                           allow_pytest: bool = True,
+                           allow_unittest: bool = True,
+                           ) -> dict[str, CoverageResults]:
+    """Return a dictionary mapping a module to a CoverageResult object formed
+    by running the tests in test_module.
 
     modules_to_check is a list of modules to check coverage of.
 
@@ -112,12 +113,12 @@ def get_coverage_dict(test_module: ModuleType,
     return results
 
 
-def make_coverage_fixture(test_module: ModuleType,
-                          modules_to_check: list[str],
-                          modules_to_replace: dict[str, str] = None,
-                          allow_pytest: bool = True,
-                          allow_unittest: bool = True,
-                          ):
+def make_test_coverage_fixture(test_module: ModuleType,
+                               modules_to_check: list[str],
+                               modules_to_replace: dict[str, str] = None,
+                               allow_pytest: bool = True,
+                               allow_unittest: bool = True,
+                               ):
     """Return a fixture that returns the dictionary mapping a module to a
     CoverageResult object.
 
@@ -129,12 +130,12 @@ def make_coverage_fixture(test_module: ModuleType,
 
     @pytest.fixture(scope="module")
     def coverage_fixture():
-        cd = get_coverage_dict(test_module,
-                               modules_to_check,
-                               modules_to_replace,
-                               allow_pytest,
-                               allow_unittest,
-                               )
+        cd = get_test_coverage_dict(test_module,
+                                    modules_to_check,
+                                    modules_to_replace,
+                                    allow_pytest,
+                                    allow_unittest,
+                                    )
         return cd
 
     return coverage_fixture
