@@ -92,12 +92,13 @@ class _CaseWrapper:
         Preconditions:
         - function_to_use is None iff function_to_mock is ''
           module_to_use and test_module are None iff module_to_replace is ''
-        - if isinstance(module_to_replace, str) then
+        - if isinstance(module_to_replace, list) then
           len(module_to_replace) == len(module_to_use)
         """
         if module_to_replace:
             if isinstance(module_to_replace, str):
                 module_to_replace = [module_to_replace]
+                module_to_use = [module_to_use]
 
             for i in range(len(module_to_replace)):
                 replaced = module_to_replace[i]
