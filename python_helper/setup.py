@@ -19,7 +19,7 @@ setuptools.setup(
     author=authors,
     author_email="sophia@cs.toronto.edu",
     packages=['python_helper'],
-    install_requires=['timeout-decorator', 'coverage', 'pytest', 'wrapt-timeout-decorator'],
+    install_requires=['coverage', 'pytest', 'wrapt-timeout-decorator'],
     extras_require={'dev': ['hypothesis']},
     python_requires='>=3.9',
     classifiers=[
