@@ -21,6 +21,23 @@ def run_cells(module, raise_on_error: bool = True):
     for cell in module.__cells__:
         cell.run(raise_on_error=raise_on_error)
 
+def run_cells_by_section(module, section_name = None, section_number = None, raise_on_error = True):
+    if section_name and section_number:
+        for i, cell in enumerate(module.__cells__):
+            if f"{section_name} {section_number}" in cell.source:
+                start = i
+            elif f"{section_name} {section_number + 1}" in cell.source:
+                end = i
+
+        # Getting only the cells that are associated with the section
+        try:
+            module.__cells__ = module.__cells__[start:end]
+        except:
+            module.__cells__ = module.__cells__[start:]  # For the last section in the assignment
+        run_cells(module, raise_on_error=raise_on_error)
+    else:
+        run_cells(module, raise_on_error=raise_on_error)
+
 
 def import_from_path(path):
     base, _ = os.path.splitext(os.path.basename(path))
