@@ -21,6 +21,49 @@ def run_cells(module, raise_on_error: bool = True):
     for cell in module.__cells__:
         cell.run(raise_on_error=raise_on_error)
 
+def run_cells_by_section(module, start_section, end_section = None, raise_on_error = True):
+    # Required to have a start_section (heading after the #s)
+    # end_section is not required but can be given as a stopping point
+
+    # Initiating variables
+    start, end = 0, None
+    prefix = None
+    start_found = False
+
+    for i, cell in enumerate(module.__cells__):
+        # Only scan markdown cells for headings
+        if getattr(cell, 'cell_type', None) != "markdown":
+            continue
+
+        # Scan all lines in the markdown cell
+        lines = cell.source.splitlines() if cell.source else []
+
+        for line in lines:
+            if not start_found:
+                # Detect start_section at the beginning of a line
+                start_pattern = re.match(rf"(#+) {start_section}", line)
+                if start_pattern:
+                    start_found = True
+                    start = i
+                    prefix = start_pattern.group(1) + " "  # '#' characters + space
+            else:
+                # Once start is found, look for end_section
+                if end_section:
+                    if re.match(rf"(#+) {end_section}", line):
+                        end = i
+                        break
+                else:
+                    # Auto-stop at the next header with same prefix (ignore deeper sub-sections)
+                    if re.match(rf"{prefix}", line):
+                        end = i
+                        break
+
+    lst = module.__cells__[start:end]  # Creating a sublist of cells to be run
+
+    # Run only the cells in the list
+    for cell in lst:
+        cell.run(raise_on_error=raise_on_error)
+
 
 def import_from_path(path):
     base, _ = os.path.splitext(os.path.basename(path))
