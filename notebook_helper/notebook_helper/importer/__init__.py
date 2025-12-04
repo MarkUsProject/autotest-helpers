@@ -22,16 +22,14 @@ def run_cells(module, raise_on_error: bool = True):
         cell.run(raise_on_error=raise_on_error)
 
 def run_cells_by_section(module, start_section, end_section = None, raise_on_error = True):
-    # Start_section is required as a string. It should include the section name (i.e. Section, Task, etc.)
-    # along with the section number (i.e. 1, 2, 3) or letter (i.e. A, B, C). Please make sure the captialization
-    # matches the markdown in the notebook
+    # Required to have a start_section (heading after the #s)
+    # end_section is not required but can be given as a stopping point
 
-    # Creating initial empty global variables
+    # Initiating variables
     start, end = 0, None
     prefix = None
     start_found = False
 
-    # Loop through the cells of the notebook
     for i, cell in enumerate(module.__cells__):
         # Only scan markdown cells for headings
         if getattr(cell, 'cell_type', None) != "markdown":
@@ -48,33 +46,23 @@ def run_cells_by_section(module, start_section, end_section = None, raise_on_err
                     start_found = True
                     start = i
                     prefix = start_pattern.group(1) + " "  # '#' characters + space
-            # Once start is found, look for end_section
             else:
-                # If an end_section parameter is given
+                # Once start is found, look for end_section
                 if end_section:
-                    if re.match(rf"{prefix}{end_section}", line):
+                    if re.match(rf"(#+) {end_section}", line):
                         end = i
                         break
-                # If an end_section parameter is not given (Look for the same level of heading)
                 else:
                     # Auto-stop at the next header with same prefix (ignore deeper sub-sections)
-                    end_pattern = re.match(rf"{prefix}", line)
-                    if end_pattern:
+                    if re.match(rf"{prefix}", line):
                         end = i
                         break
 
-        if end is not None:
-            break  # Stop scanning cells once end is found
+    lst = module.__cells__[start:end]  # Creating a sublist of cells to be run
 
-    # If both an end and start index have been found
-    if end is not None:
-        module.__cells__ = module.__cells__[start:end]
-    # If there is no end index found, go to the end of the notebook
-    else:
-        module.__cells__ = module.__cells__[start:]
-
-    # Run the cells of the notebook
-    run_cells(module, raise_on_error=raise_on_error)
+    # Run only the cells in the list
+    for cell in lst:
+        cell.run(raise_on_error=raise_on_error)
 
 
 def import_from_path(path):
