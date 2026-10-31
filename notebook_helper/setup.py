@@ -19,7 +19,7 @@ setuptools.setup(
     author=authors,
     author_email="mschwa@cs.toronto.edu",
     packages=['notebook_helper.importer', 'notebook_helper.merger', 'notebook_helper.pytest'],
-    install_requires=['ipython==7.24.0', 'nbformat==5.1.3', 'pytest>=6.2.1,<8'],
+    install_requires=['ipython==7.24.0', 'nbformat==5.1.3', 'pytest>=7'],
     python_requires='>=3.3',
     classifiers=[
         "Programming Language :: Python :: 3",
