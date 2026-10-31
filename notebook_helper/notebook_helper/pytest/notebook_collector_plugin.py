@@ -12,39 +12,22 @@ __all__ = [
 ]
 
 
-try:
-    PYTEST_VERSION = tuple(int(x) for x in pytest.__version__.split('.'))
-except Exception:
-    PYTEST_VERSION = (0, 0, 0)
+def pytest_collect_file(file_path, parent):
+    """pytest hook.
 
+    Create a Collector for the given path, or None if not relevant.
 
-if PYTEST_VERSION >= (7, 0, 0):
-    def pytest_collect_file(file_path, path, parent):
-        """pytest hook.
-
-        Create a Collector for the given path, or None if not relevant.
-
-        The new node needs to have the specified parent as a parent.
-        """
-        if path.ext == ".ipynb":
-            return IpynbFile.from_parent(parent, path=file_path)
-else:
-    def pytest_collect_file(path, parent):
-        """pytest hook.
-
-        Create a Collector for the given path, or None if not relevant.
-
-        The new node needs to have the specified parent as a parent.
-        """
-        if path.ext == ".ipynb":
-            return IpynbFile.from_parent(parent, fspath=path)
+    The new node needs to have the specified parent as a parent.
+    """
+    if file_path.suffix == ".ipynb":
+        return IpynbFile.from_parent(parent, path=file_path)
 
 
 class IpynbFile(pytest.File):
     TEST_PATTERN = re.compile(r"(?i)^\s*#+\s*(test.*?)\s*$")
 
     def collect(self):
-        mod = import_from_path(self.fspath)
+        mod = import_from_path(str(self.path))
         setup_cells = []
         for cell in get_cells(mod):
             lines = cell.source.splitlines() or [""]  # dummy list so the next line works
@@ -102,4 +85,4 @@ class IpynbItem(pytest.Item):
             return f"Error when reporting test failure for {self.name}:\n{traceback.format_exc()}"
 
     def reportinfo(self):
-        return self.fspath, None, f"Test cell: {self.name}"
+        return self.path, None, f"Test cell: {self.name}"

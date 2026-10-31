@@ -80,7 +80,7 @@ The `check` function checks if two notebooks can be merged with the `merge` func
 
 ## pytest
 
-The `notebook_helper.pytest.notebook_collector_plugin` module is a [Pytest plugin](https://docs.pytest.org/en/7.1.x/how-to/writing_plugins.html) that enables the collection of test cases from a Jupyter notebook file.
+The `notebook_helper.pytest.notebook_collector_plugin` module is a [Pytest plugin](https://docs.pytest.org/en/stable/how-to/writing_plugins.html) that enables the collection of test cases from a Jupyter notebook file.
 This enables Pytest to execute notebook cells as simple test cases.
 Currently, more advanced Pytest features (such as fixtures and parameterized tests) are not supported.
 
